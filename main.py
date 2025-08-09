@@ -15,22 +15,31 @@ from urllib.parse import urlparse
 from datetime import datetime
 from dotenv import load_dotenv
 from groq import Groq
-from duckduckgo_search import DDGS
 
 # Load environment variables
 load_dotenv()
 
-# Debug: Check if API key is loaded
-api_key = os.getenv('GROQ_API_KEY')
-if not api_key:
+# Debug: Check if API keys are loaded
+groq_api_key = os.getenv('GROQ_API_KEY')
+google_api_key = os.getenv('GOOGLE_SEARCH_API_KEY')
+google_search_engine_id = os.getenv('GOOGLE_SEARCH_ENGINE_ID')
+
+if not groq_api_key:
     print("❌ GROQ_API_KEY not found in environment variables")
     print("Please check your .env file contains: GROQ_API_KEY=your_actual_key")
     exit(1)
 else:
-    print(f"✅ API key loaded successfully (length: {len(api_key)})")
+    print(f"✅ GROQ API key loaded successfully (length: {len(groq_api_key)})")
+
+if not google_api_key or not google_search_engine_id:
+    print("⚠️ Google Search API credentials not found")
+    print("Please add GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID to .env")
+    print("Google Search functionality will be limited")
+else:
+    print(f"✅ Google Search API credentials loaded successfully")
 
 # Initialize Groq client
-groq_client = Groq(api_key=api_key)
+groq_client = Groq(api_key=groq_api_key)
 
 def call_groq_llm(prompt, max_tokens=1000, retries=3):
     """
