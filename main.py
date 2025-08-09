@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 from datetime import datetime
 from dotenv import load_dotenv
 from groq import Groq
+from duckduckgo_search import DDGS
 
 # Load environment variables
 load_dotenv()
@@ -131,20 +132,55 @@ def agent2_data_collector(sub_queries):
     Agent 2: Data Collector
     Search and scrape 2-3 web sources per sub-query
     """
-    def search_web(query):
-        """Test function with real URLs"""
-        return [
-            "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11582508/",
-            "https://www.mdpi.com/2075-1729/14/5/557",
-            "https://www.scirp.org/journal/paperinformation?paperid=130372"
-        ]
+    def search_web(query, max_results=3):
+        """
+        Use Google Custom Search API to find relevant URLs
+        Returns: List of search results with title, href, and body
+        """
+        api_key = os.getenv('GOOGLE_SEARCH_API_KEY')
+        search_engine_id = os.getenv('GOOGLE_SEARCH_ENGINE_ID')
+        
+        if not api_key or not search_engine_id:
+            print("⚠️ Google Search API credentials not found. Please add GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID to .env")
+            return []
+        
+        try:
+            # Google Custom Search API
+            url = "https://www.googleapis.com/customsearch/v1"
+            params = {
+                'key': api_key,
+                'cx': search_engine_id,
+                'q': query,
+                'num': max_results
+            }
+            
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            
+            results = []
+            if 'items' in data:
+                for item in data['items']:
+                    results.append({
+                        'title': item.get('title', ''),
+                        'href': item.get('link', ''),
+                        'body': item.get('snippet', '')
+                    })
+            
+            print(f"Google Search found {len(results)} results for: '{query}'")
+            return results
+            
+        except Exception as e:
+            print(f"Google Search failed for '{query}': {e}")
+            return []
 
-    def scrape_url(url, retries=2):
+    def scrape_page(url, retries=2):
         """Scrape and clean content from URL"""
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         
         for attempt in range(retries):
             try:
+                print(f"Attempting to scrape: {url}")
                 response = requests.get(url, headers=headers, timeout=10)
                 response.raise_for_status()
                 
@@ -159,11 +195,14 @@ def agent2_data_collector(sub_queries):
                 paragraphs = [p.get_text().strip() for p in soup.find_all('p') if len(p.get_text().strip()) > 100]
                 content = ' '.join(paragraphs)
                 
+                word_count = len(content.split())
+                print(f"Scraped content: {word_count} words")
+                
                 return {
                     'url': url,
                     'title': soup.title.string if soup.title else url,
                     'date': datetime.now().isoformat(),
-                    'word_count': len(content.split()),
+                    'word_count': word_count,
                     'content': content
                 }
             except Exception as e:
@@ -176,31 +215,53 @@ def agent2_data_collector(sub_queries):
     seen_domains = set()
 
     for query in sub_queries:
-        print(f"\nProcessing: {query}")
+        print(f"\nProcessing sub-query: {query}")
         sources = []
         
-        for url in search_web(query):
+        # Get search results for this specific sub-query
+        search_results = search_web(query, max_results=5)
+        
+        for result in search_results:
+            url = result.get('href', '')
+            if not url:
+                continue
+                
             domain = urlparse(url).netloc
             if domain in seen_domains:
                 continue
                 
-            data = scrape_url(url)
-            if data and 500 <= data['word_count'] <= 1000:
-                sources.append(data)
+            # Use the body from search result as initial content
+            body = result.get('body', '')
+            if len(body.split()) >= 500:  # If search result body is long enough
+                sources.append({
+                    'url': url,
+                    'title': result.get('title', url),
+                    'date': datetime.now().isoformat(),
+                    'word_count': len(body.split()),
+                    'content': body
+                })
                 seen_domains.add(domain)
+                print(f"✅ Used search result body for: {url}")
+            else:
+                # Try to scrape the full page
+                data = scrape_page(url)
+                if data and 500 <= data['word_count'] <= 1000:
+                    sources.append(data)
+                    seen_domains.add(domain)
+                    print(f"✅ Scraped full page for: {url}")
                 
-                if len(sources) >= 2:
-                    break
-                    
+            if len(sources) >= 2:  # Stop when we have 2 good sources
+                break
+                
             time.sleep(1.5 + random.random())  # Rate limiting
         
         if sources:
             results[query] = sources
-            print(f"✅ Found {len(sources)} sources")
+            print(f"✅ Found {len(sources)} sources for: {query}")
         else:
-            print(f"⚠️ No valid sources found")
+            print(f"⚠️ No valid sources found for: {query}")
             
-        time.sleep(2)  # Delay between queries
+        time.sleep(5 + random.random() * 3)  # 5-8 second delay between queries
     
     return results
 

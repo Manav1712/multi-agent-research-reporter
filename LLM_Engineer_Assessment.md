@@ -12,11 +12,13 @@ Input/Output
 Input: Research query string (e.g., "Impact of AI in healthcare")
 Output: PDF report (300-500 words) with structured findings
 Processing: All data handled in-memory (no persistent storage)
+
 Technical Stack
 LLM Provider: Groq API (free tier available)
 Web Scraping: Any suitable library (BeautifulSoup, Scrapy, or APIs)
 PDF Generation: Any library (ReportLab, PyPDF2, etc.)
 Language: Python preferred, but open to alternatives
+
 System Architecture
 Agent 1: Query Processor
 Decompose user query into 3-5 focused sub-queries
@@ -65,23 +67,28 @@ Must Have
 2. Error handling for API failures and timeouts
 3. Working PDF generation with basic formatting
 4. At least one iteration of quality improvement
+
 Nice to Have
 1. Parallel processing of sub-queries
 2. Advanced formatting (tables, bullet points)
 3. Citation of sources in the report
 4. Comprehensive error recovery strategies
+
 Deliverables
 1. Source Code
 Well-organized code with clear separation of agents
 Basic comments explaining key functions
 Requirements.txt or equivalent dependency list
+
 2. Documentation
 README with setup instructions
 Brief explanation of each agent's role
 Example usage with sample query
+
 3. Demo
 Working system processing at least one query
 Sample PDF output included
+
 Evaluation Criteria
 Technical Implementation (40%)
 Code organization and readability
@@ -93,15 +100,18 @@ System Design (30%)
 Clear agent separation and responsibilities
 Data flow between agents
 Handling of edge cases
+
 Output Quality (20%)
 Relevance of generated report to query
 Report structure and readability
 Professional presentation
+
 Documentation (10%)
 Clear setup instructions
 Code comments
 Usage examples
 Time Expectation
+
 Estimated completion: 4-6 hours
 Focus on working implementation over perfect optimization
 Hints and Guidelines
@@ -124,6 +134,7 @@ Note: This assessment is designed to evaluate practical skills in working with L
 building modular systems. Perfect implementation is not expected - we're looking for clear
 thinking, practical problem-solving, and the ability to deliver a working solution within
 reasonable constraints.
+
 Submission Instructions
 1. Create a GitHub repository with your solution
 2. Include all source code and documentation
