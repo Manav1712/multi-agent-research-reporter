@@ -1,78 +1,61 @@
-# Multi-Agent Research System
+# Multi-Agent Research Reporter
 
-A Python-based automated research system that processes user queries and generates professional PDF reports using a 4-agent architecture.
+A Python system that automatically generates research reports using a 4-agent pipeline architecture.
 
 ## Overview
 
-This system takes a research query as input and produces a structured PDF report by:
-1. **Decomposing** the query into focused sub-queries
-2. **Collecting** relevant data from web sources
-3. **Analyzing** and synthesizing the information
-4. **Generating** a professional PDF report
+This system takes a research query and produces a structured PDF report by:
+1. **Query Processing** - Breaks down queries into focused sub-queries
+2. **Data Collection** - Gathers information from web sources
+3. **Content Analysis** - Synthesizes data into insights
+4. **Report Generation** - Creates professional PDF reports
 
-## Setup
+## Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd multi-agent-research-reporter
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
+1. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Set up Groq API**
-   - Sign up at [Groq Console](https://console.groq.com/)
-   - Create a `.env` file in the project root
-   - Add your API key: `GROQ_API_KEY=your_api_key_here`
+2. **Set up API keys**
+   ```bash
+   # Create .env file
+   GROQ_API_KEY=your_groq_api_key
+   GOOGLE_SEARCH_API_KEY=your_google_api_key
+   GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id
+   ```
 
-## Usage
+3. **Run the system**
+   ```bash
+   python main.py
+   ```
 
-Run the system with a research query:
+## Architecture
 
-```bash
-python main.py "Impact of AI in healthcare"
-```
-
-## Project Structure
-
-```
-multi-agent-research-reporter/
-├── main.py                 # Main pipeline and agent functions
-├── requirements.txt        # Python dependencies
-├── .gitignore             # Git ignore rules
-├── README.md              # This file
-├── .env                   # Environment variables (not in repo)
-└── sample_outputs/        # Generated PDF reports
-```
-
-## Agent Architecture
-
-- **Agent 1: Query Processor** - Decomposes queries into sub-queries
-- **Agent 2: Data Collector** - Scrapes web sources for relevant data
-- **Agent 3: Content Analyzer** - Synthesizes data into structured content
-- **Agent 4: Report Generator** - Creates professional PDF reports
-
-## Example Output
-
-The system generates PDF reports with:
-- Title page with query and date
-- 3-4 structured sections
-- Key findings and insights
-- Professional formatting
+- **Agent 1**: Query decomposition using LLM
+- **Agent 2**: Web search and content scraping
+- **Agent 3**: Content analysis and synthesis
+- **Agent 4**: PDF report generation
 
 ## Dependencies
 
-- `groq` - Groq LLM API client
-- `requests` - HTTP requests for web scraping
+- `groq` - LLM API client
+- `requests` - HTTP requests
 - `beautifulsoup4` - HTML parsing
 - `reportlab` - PDF generation
-- `python-dotenv` - Environment variable management 
+- `python-dotenv` - Environment management
+
+## Testing
+
+```bash
+# Run unit tests
+python -m unittest test_agent3.py
+
+# Test specific components
+python test_agent3_demo.py
+python test_google_api.py
+```
+
+## Output
+
+Generates timestamped PDF reports with structured analysis, key findings, and recommendations. 
